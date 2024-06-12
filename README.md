@@ -1,5 +1,7 @@
 # README
 
+This is a Streamlit text-to-SQL application. It takes natural language input, retrieves the database schema, and generates SQL based on the schema and instructions. The app can execute the SQL and provide a natural language explanation of the generated SQL. Users can recognize discrepancies between their intent and the generated SQL, modify the SQL, and re-execute it.
+
 ## Prerequisites
 
 - PostgreSQL
