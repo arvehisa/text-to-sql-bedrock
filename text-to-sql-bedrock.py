@@ -46,15 +46,17 @@ def format_schema(schema_df):
         schema_str += f"Table: {row['Table Name']}, Column: {row['Column Name']}, Type: {row['Data Type']}\n"
     return schema_str
 
-def generate_sql_from_chatgpt(schema_str, instruction):
+def generate_sql(schema_str, instruction):
     bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
     modelId="anthropic.claude-3-sonnet-20240229-v1:0"
     
     prompt = f"""
-    Your task is to generate SQL based on the my postgreSQL database schema and my instruction.
-    only generate the SQL itself, no any markdown like "```sql" or "```" or any other formatting.
+    Your task is to generate SQL based on provided database schema and the instruction.
+    The database engine is PostgreSQL.
 
-    here is my database schema:
+    Only generate the SQL itself, no any markdown like "```sql" or "```" or other formatting.
+
+    here is the database schema:
     {schema_str}
 
     here is the instruction:
@@ -123,13 +125,11 @@ def main():
     schema_df = get_schema()
     if schema_df is not None:
         schema_str = format_schema(schema_df)
-        st.sidebar.title("Database Schema")
-        st.sidebar.write(schema_df)
     
     if st.button("Query"):
         print("Query button clicked.")
         if schema_df is not None and instruction:
-            generated_sql, sql_explanation = generate_sql_from_chatgpt(schema_str, instruction)
+            generated_sql, sql_explanation = generate_sql(schema_str, instruction)
             if generated_sql:
                 st.session_state.generated_sql = generated_sql
                 st.session_state.sql_explanation = sql_explanation
@@ -147,7 +147,12 @@ def main():
             st.session_state.generated_sql = st.session_state.modified_sql
             result_df = execute_sql(st.session_state.modified_sql)
             st.write(result_df)
+    
+    if schema_df is not None:
+        st.title("Database Schema")
+        st.write(schema_df)
 
 if __name__ == "__main__":
     main()
+
 
